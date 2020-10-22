@@ -48,21 +48,18 @@ protobuf {
         grpc { artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}" }
         rxgrpc { artifact = "com.salesforce.servicelibs:rxgrpc:${reactiveGrpcVersion}" }
         reactor { artifact = "com.salesforce.servicelibs:reactor-grpc:${reactiveGrpcVersion}" }
+        javalite { artifact = 'com.google.protobuf:protoc-gen-javalite:3.0.0' }
     }
     clean {
         delete protobuf.generatedFilesBaseDir
     }
     generateProtoTasks {
-        all().each { task ->
-            task.builtins { java { option "lite" } }
-            task.plugins {
-                grpc { option "lite" }
-                rxgrpc {}
-            }
+        all()*.builtins {
+            java { option "lite"}
         }
         all()*.plugins {
-            grpc { }
-            rxgrpc {}
+            grpc { option "lite" }
+            rxgrpc { option "lite" }
             reactor {}
         }
     }
@@ -76,7 +73,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
 
-    def koin_version='2.2.0-rc-2'
+    def koin_version = '2.2.0-rc-2'
     implementation "org.koin:koin-core:$koin_version"
     implementation "org.koin:koin-android:$koin_version"
     implementation "org.koin:koin-android-viewmodel:$koin_version"
@@ -94,13 +91,9 @@ dependencies {
 
 }
 
+// todo check if needed
 tasks.withType(GenerateModuleMetadata) {
     // Module metadata, introduced in Gradle 6.0, conflicts with our publishing task for grpc-alts and grpc-compiler.
     enabled = false
 }
 
-ext {
-    protocPluginBaseName = 'protoc-gen-grpc-java'
-    javaPluginPath = "$rootDir/compiler/build/exe/java_plugin/$protocPluginBaseName"
-
-}
